@@ -11,6 +11,8 @@
 | 姓名 | 李浩源 |
 | 求职意向 | 跨境电商运营助理 / 数据运营助理 / 独立站运营 |
 | 目标平台 | Amazon / Shopify |
+| 手机 | 【填写手机号】 |
+| 所在城市 | 【填写城市】 |
 | 联系邮箱 | zli638653@gmail.com |
 | GitHub | https://github.com/lihaoyuan-afk/cross-border-ecom |
 
