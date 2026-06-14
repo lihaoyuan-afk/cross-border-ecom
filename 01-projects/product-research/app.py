@@ -198,7 +198,7 @@ with tab2:
             "brand": "品牌",
             "price": "价格($)",
             "bsr": "BSR",
-            "rating": "评分",
+            "rating": "星级",
             "reviews": "评价数",
             "monthly_revenue": "月销售额($)",
             "title": "商品标题",

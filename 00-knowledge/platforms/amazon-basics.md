@@ -164,4 +164,4 @@ $$\text{ROAS} = \frac{\text{广告带来的销售额}}{\text{广告花费}}$$
 
 ---
 
-> **待补充：** Amazon 广告系统详解、关键词研究方法论、选品标准化流程
+> **已拆分专题笔记：** [Amazon 广告系统详解](amazon-ads.md) | [关键词研究方法论](keyword-research.md)
