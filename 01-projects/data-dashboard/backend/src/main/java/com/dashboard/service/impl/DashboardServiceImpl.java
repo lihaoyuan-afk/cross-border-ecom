@@ -27,9 +27,9 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public DashboardSummaryVO getSummary(String startDate, String endDate) {
         // 查询当前周期数据
-        Map<String, Object> sales   = salesMapper.selectSummary(startDate, endDate);
-        Map<String, Object> ads     = adMapper.selectSummary(startDate, endDate);
-        Map<String, Object> traffic = trafficMapper.selectFunnelData(startDate, endDate);
+        Map<String, Object> sales   = nullSafe(salesMapper.selectSummary(startDate, endDate));
+        Map<String, Object> ads     = nullSafe(adMapper.selectSummary(startDate, endDate));
+        Map<String, Object> traffic = nullSafe(trafficMapper.selectFunnelData(startDate, endDate));
 
         // 计算上一个同等时长周期（用于环比）
         LocalDate start  = LocalDate.parse(startDate, FMT);
@@ -38,9 +38,9 @@ public class DashboardServiceImpl implements DashboardService {
         String prevStart = start.minusDays(periodDays).format(FMT);
         String prevEnd   = start.minusDays(1).format(FMT);
 
-        Map<String, Object> prevSales   = salesMapper.selectSummary(prevStart, prevEnd);
-        Map<String, Object> prevAds     = adMapper.selectSummary(prevStart, prevEnd);
-        Map<String, Object> prevTraffic = trafficMapper.selectFunnelData(prevStart, prevEnd);
+        Map<String, Object> prevSales   = nullSafe(salesMapper.selectSummary(prevStart, prevEnd));
+        Map<String, Object> prevAds     = nullSafe(adMapper.selectSummary(prevStart, prevEnd));
+        Map<String, Object> prevTraffic = nullSafe(trafficMapper.selectFunnelData(prevStart, prevEnd));
 
         DashboardSummaryVO vo = new DashboardSummaryVO();
 
@@ -103,6 +103,10 @@ public class DashboardServiceImpl implements DashboardService {
         vo.setConversionRateChange(calcChange(vo.getConversionRate(), prevConvRate));
 
         return vo;
+    }
+
+    private Map<String, Object> nullSafe(Map<String, Object> map) {
+        return map != null ? map : java.util.Collections.emptyMap();
     }
 
     private BigDecimal toBD(Object val) {

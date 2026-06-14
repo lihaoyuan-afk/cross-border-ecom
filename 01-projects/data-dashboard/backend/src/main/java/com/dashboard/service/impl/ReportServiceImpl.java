@@ -1,8 +1,10 @@
 package com.dashboard.service.impl;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.NumberFormat;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.dashboard.mapper.AdPerformanceMapper;
 import com.dashboard.mapper.DailySalesMapper;
 import com.dashboard.service.ReportService;
@@ -70,9 +72,12 @@ public class ReportServiceImpl implements ReportService {
             adRows.add(ar);
         }
 
-        EasyExcel.write(response.getOutputStream())
-                .sheet("销售数据").head(SalesExcelRow.class).doWrite(salesRows)
-                .sheet("广告数据").head(AdsExcelRow.class).doWrite(adRows);
+        try (ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream()).build()) {
+            WriteSheet salesSheet = EasyExcel.writerSheet(0, "销售数据").head(SalesExcelRow.class).build();
+            WriteSheet adSheet    = EasyExcel.writerSheet(1, "广告数据").head(AdsExcelRow.class).build();
+            excelWriter.write(salesRows, salesSheet);
+            excelWriter.write(adRows, adSheet);
+        }
     }
 
     private BigDecimal toBD(Object val) {

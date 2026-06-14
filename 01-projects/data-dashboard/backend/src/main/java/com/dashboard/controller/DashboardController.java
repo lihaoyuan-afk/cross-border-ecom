@@ -29,8 +29,8 @@ public class DashboardController {
             @RequestParam(required = false) String start,
             @RequestParam(required = false) String end) {
 
-        if (end == null)   end   = LocalDate.now().format(FMT);
-        if (start == null) start = LocalDate.now().minusDays(29).format(FMT);
+        if (end == null)   end   = "2024-06-30";
+        if (start == null) start = "2024-01-01";
 
         return Result.success(dashboardService.getSummary(start, end));
     }

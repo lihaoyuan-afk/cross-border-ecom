@@ -18,7 +18,7 @@ DB_CONFIG = {
     'host': 'localhost',
     'port': 3306,
     'user': 'root',
-    'password': 'root123',
+    'password': 'lihaoyuan123',
     'database': 'data_dashboard',
     'charset': 'utf8mb4'
 }

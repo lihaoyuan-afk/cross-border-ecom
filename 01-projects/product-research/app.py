@@ -265,9 +265,10 @@ with tab3:
         with col_r:
             st.markdown("**Top 30 关键词频次表**")
             st.dataframe(
-                wf_df.style.background_gradient(cmap="Blues", subset=["出现次数"]),
+                wf_df,
                 use_container_width=True,
                 height=540,
+                column_config={"出现次数": st.column_config.ProgressColumn("出现次数", min_value=0, max_value=int(wf_df["出现次数"].max()))},
             )
 
         st.divider()
