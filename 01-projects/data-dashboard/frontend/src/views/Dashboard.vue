@@ -360,8 +360,8 @@ function renderSalesChart(data) {
           ${o.marker}订单量：${o.value} 单`
       }
     },
-    legend: { ...darkLegend, data: ['销售额', '订单量'], bottom: 0 },
-    grid: { top: 20, bottom: 50, left: 60, right: 50 },
+    legend: { ...darkLegend, data: ['销售额', '订单量'], bottom: 4 },
+    grid: { top: 20, bottom: 52, left: 60, right: 50, containLabel: true },
     xAxis: {
       ...darkAxis,
       type: 'category',
@@ -424,8 +424,8 @@ function renderAcosChart(data) {
           ${r.marker}ROAS：${r.value}x`
       }
     },
-    legend: { ...darkLegend, data: ['ACoS(%)', 'ROAS(x)'], bottom: 0 },
-    grid: { top: 30, bottom: 50, left: 55, right: 55 },
+    legend: { ...darkLegend, data: ['ACoS(%)', 'ROAS(x)'], bottom: 4 },
+    grid: { top: 30, bottom: 52, left: 55, right: 55, containLabel: true },
     xAxis: {
       ...darkAxis,
       type: 'category',
