@@ -96,9 +96,6 @@ cross-border-ecom/
 │   ├── data-dashboard/             # 店铺数据看板（Spring Boot + Vue 3）
 │   ├── listing-optimizer/          # Listing 优化引擎（Flask + Vue 3）
 │   └── product-research/           # 选品分析工具（Streamlit）
-├── 02-job-hunt/                    # 求职材料
-│   ├── resume/resume.md            # 完整简历（4 个项目经历）
-│   └── interview-prep/qa-common.md # 面试题库（11 题，含 STAR 答法）
 ├── 03-resources/                   # 参考资料
 └── docs/screenshots/               # 项目界面截图
 ```
@@ -143,11 +140,11 @@ npm install && npm run dev
 
 ```bash
 # 后端（端口 8080）
-cd competitor-monitor/backend
+cd 01-projects/competitor-monitor/backend
 DB_PASSWORD=你的数据库密码 mvn spring-boot:run
 
 # 前端
-cd competitor-monitor/frontend
+cd 01-projects/competitor-monitor/frontend
 npm install && npm run dev
 # 访问 http://localhost:5173
 ```
@@ -171,13 +168,6 @@ npm install && npm run dev
 - [x] Listing 质量评分工具（Flask + Vue 3 + AI 优化）
 - [x] 店铺销售数据看板（Spring Boot + Vue 3 + ECharts）
 - [x] 竞品价格/BSR 监控预警系统（Spring Boot + Vue 3）
-
-### 求职材料
-
-- [x] 中文简历（4 个项目经历 + 量化亮点）
-- [x] 面试题库（11 题，含平台基础 / 数据分析 / 行为题 STAR）
-- [ ] 英文简历
-- [ ] 模拟面试练习
 
 ---
 

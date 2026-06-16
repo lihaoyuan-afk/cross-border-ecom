@@ -22,7 +22,7 @@
 
 **软件工程 · 本科**
 河南工业大学
-2021.09 — 2025.06
+2022.09 — 2026.06
 
 ---
 
@@ -47,7 +47,7 @@
 
 ### 1. 跨境电商竞品监控系统
 **技术栈：** Spring Boot 3 · Vue 3 · ECharts · MySQL
-**时间：** 2025.03 — 2025.05
+**时间：** 2026.03 — 2026.05
 **链接：** https://github.com/lihaoyuan-afk/cross-border-ecom（competitor-monitor 分支）
 
 **解决的痛点：** Amazon 运营中竞品价格和 BSR 每日波动频繁，人工逐条检查效率极低，异动发现往往滞后数小时。
@@ -64,7 +64,7 @@
 
 ### 2. Amazon 选品分析工具
 **技术栈：** Python · pandas · Streamlit · Plotly
-**时间：** 2025.06
+**时间：** 2026.06
 **链接：** https://github.com/lihaoyuan-afk/cross-border-ecom（product-research 目录）
 
 **解决的痛点：** 传统选品依赖个人经验和感觉，难以在大量候选品中快速筛出高潜力品，决策过程缺乏数据支撑。
@@ -81,7 +81,7 @@
 
 ### 3. 店铺数据看板
 **技术栈：** Spring Boot 3 · Vue 3 · ECharts · MySQL
-**时间：** 2025.01 — 2025.02
+**时间：** 2026.01 — 2026.02
 **链接：** https://github.com/lihaoyuan-afk/cross-border-ecom（data-dashboard 目录）
 
 **解决的痛点：** 运营数据分散在广告后台、库存报表、流量报告等多个页面，需要反复切换才能看全，缺乏统一视图。
@@ -99,7 +99,7 @@
 
 ### 4. Amazon Listing 优化引擎
 **技术栈：** Python · Flask · Vue 3
-**时间：** 2024.11 — 2024.12
+**时间：** 2026.01
 **链接：** https://github.com/lihaoyuan-afk/cross-border-ecom（listing-optimizer 目录）
 
 **解决的痛点：** 人工检查 Listing 质量标准繁多、主观性强，无法快速定位弱项并给出改写方向。
