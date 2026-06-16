@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard">
+  <div class="dashboard" ref="dashRef">
     <!-- ══════════════════════════════════════════════
          顶部标题栏 + 日期筛选
     ══════════════════════════════════════════════ -->
@@ -53,21 +53,21 @@
         :value="fmt.money(summary.totalRevenue)"
         :change="fmt.changeText(summary.revenueChange)"
         icon="💰"
-        color="#409EFF"
+        color="#FF7A1A"
       />
       <MetricCard
         title="总订单量"
         :value="fmt.number(summary.totalOrders) + ' 单'"
         :change="fmt.changeText(summary.ordersChange)"
         icon="🛒"
-        color="#67C23A"
+        color="#4ADE80"
       />
       <MetricCard
         title="平均 ACoS"
         :value="fmt.percent(summary.avgAcos)"
         :change="fmt.acosChangeText(summary.acosChange)"
         icon="📢"
-        color="#E6A23C"
+        color="#E8B14B"
         tooltip="广告销售成本比 = 广告花费 / 广告销售额，越低越好"
       />
       <MetricCard
@@ -75,7 +75,7 @@
         :value="fmt.percent(summary.conversionRate)"
         :change="fmt.changeText(summary.conversionRateChange)"
         icon="🎯"
-        color="#F56C6C"
+        color="#FB5F5F"
         tooltip="会话 → 成单转化率"
       />
     </div>
@@ -178,13 +178,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import * as echarts from 'echarts'
 import { Download, InfoFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { api } from '../api/index.js'
 import { fmt } from '../utils/format.js'
 import MetricCard from '../components/MetricCard.vue'
+import { gsap, ScrollTrigger } from '../animation/gsap.js'
 
 // ── 日期状态 ──────────────────────────────────────────────────
 const DATA_MIN = '2024-01-01'
@@ -248,6 +249,24 @@ const salesChartRef  = ref(null)
 const acosChartRef   = ref(null)
 const funnelChartRef = ref(null)
 let salesChart, acosChart, funnelChart
+
+// ── GSAP refs ──────────────────────────────────────────────────
+const dashRef = ref(null)
+let gsapCtx
+
+// Shared dark-mode ECharts style
+const darkAxis = {
+  axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
+  axisLabel: { color: '#9097A6' },
+  splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+  nameTextStyle: { color: '#9097A6' }
+}
+const darkTooltip = {
+  backgroundColor: '#16181E',
+  borderColor: '#2A2D36',
+  textStyle: { color: '#E6E8EE' }
+}
+const darkLegend = { textStyle: { color: '#9097A6' } }
 
 // ── 数据加载 ──────────────────────────────────────────────────
 async function loadAll() {
@@ -329,7 +348,9 @@ function renderSalesChart(data) {
   const orders   = data.map(d => d.orders)
 
   salesChart.setOption({
+    backgroundColor: 'transparent',
     tooltip: {
+      ...darkTooltip,
       trigger: 'axis',
       formatter(params) {
         const d = params[0]
@@ -339,20 +360,23 @@ function renderSalesChart(data) {
           ${o.marker}订单量：${o.value} 单`
       }
     },
-    legend: { data: ['销售额', '订单量'], bottom: 0 },
+    legend: { ...darkLegend, data: ['销售额', '订单量'], bottom: 0 },
     grid: { top: 20, bottom: 50, left: 60, right: 50 },
     xAxis: {
+      ...darkAxis,
       type: 'category',
       data: dates,
-      axisLabel: { rotate: dates.length > 20 ? 45 : 0, fontSize: 11 }
+      axisLabel: { ...darkAxis.axisLabel, rotate: dates.length > 20 ? 45 : 0, fontSize: 11 }
     },
     yAxis: [
       {
+        ...darkAxis,
         type: 'value',
         name: '销售额（元）',
-        axisLabel: { formatter: v => (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }
+        axisLabel: { ...darkAxis.axisLabel, formatter: v => (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }
       },
       {
+        ...darkAxis,
         type: 'value',
         name: '订单量',
         splitLine: { show: false }
@@ -365,16 +389,17 @@ function renderSalesChart(data) {
         data: revenues,
         smooth: true,
         yAxisIndex: 0,
-        itemStyle: { color: '#409EFF' },
+        itemStyle: { color: '#FF7A1A' },
+        lineStyle: { color: '#FF7A1A', width: 2 },
         areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-          colorStops: [{ offset: 0, color: 'rgba(64,158,255,0.3)' }, { offset: 1, color: 'rgba(64,158,255,0)' }] } }
+          colorStops: [{ offset: 0, color: 'rgba(255,122,26,0.28)' }, { offset: 1, color: 'rgba(255,122,26,0)' }] } }
       },
       {
         name: '订单量',
         type: 'bar',
         data: orders,
         yAxisIndex: 1,
-        itemStyle: { color: 'rgba(103,194,58,0.6)' },
+        itemStyle: { color: 'rgba(74,222,128,0.5)' },
         barMaxWidth: 12
       }
     ]
@@ -388,7 +413,9 @@ function renderAcosChart(data) {
   const roas  = data.map(d => Number(d.roas).toFixed(2))
 
   acosChart.setOption({
+    backgroundColor: 'transparent',
     tooltip: {
+      ...darkTooltip,
       trigger: 'axis',
       formatter(params) {
         const a = params[0], r = params[1]
@@ -397,37 +424,39 @@ function renderAcosChart(data) {
           ${r.marker}ROAS：${r.value}x`
       }
     },
-    legend: { data: ['ACoS(%)', 'ROAS(x)'], bottom: 0 },
+    legend: { ...darkLegend, data: ['ACoS(%)', 'ROAS(x)'], bottom: 0 },
     grid: { top: 30, bottom: 50, left: 55, right: 55 },
     xAxis: {
+      ...darkAxis,
       type: 'category',
       data: dates,
-      axisLabel: { rotate: dates.length > 20 ? 45 : 0, fontSize: 11 }
+      axisLabel: { ...darkAxis.axisLabel, rotate: dates.length > 20 ? 45 : 0, fontSize: 11 }
     },
     yAxis: [
       {
+        ...darkAxis,
         type: 'value',
         name: 'ACoS %',
         min: 0,
         max: 50,
-        axisLabel: { formatter: v => v + '%' }
+        axisLabel: { ...darkAxis.axisLabel, formatter: v => v + '%' }
       },
       {
+        ...darkAxis,
         type: 'value',
         name: 'ROAS',
         min: 0,
         splitLine: { show: false },
-        axisLabel: { formatter: v => v + 'x' }
+        axisLabel: { ...darkAxis.axisLabel, formatter: v => v + 'x' }
       }
     ],
-    // 合理区间参考线：20%~35%
     visualMap: {
       show: false,
       seriesIndex: 0,
       pieces: [
-        { gt: 0,  lte: 20, color: '#67C23A' },
-        { gt: 20, lte: 35, color: '#E6A23C' },
-        { gt: 35,          color: '#F56C6C' }
+        { gt: 0,  lte: 20, color: '#4ADE80' },
+        { gt: 20, lte: 35, color: '#E8B14B' },
+        { gt: 35,          color: '#FB5F5F' }
       ]
     },
     series: [
@@ -439,9 +468,9 @@ function renderAcosChart(data) {
         yAxisIndex: 0,
         markLine: {
           silent: true,
-          lineStyle: { type: 'dashed', color: '#E6A23C' },
+          lineStyle: { type: 'dashed', color: '#E8B14B' },
           data: [{ yAxis: 35, name: '预警线 35%' }],
-          label: { formatter: '预警线 {c}%' }
+          label: { formatter: '预警线 {c}%', color: '#9097A6' }
         }
       },
       {
@@ -450,8 +479,8 @@ function renderAcosChart(data) {
         data: roas,
         smooth: true,
         yAxisIndex: 1,
-        lineStyle: { type: 'dashed' },
-        itemStyle: { color: '#9B59B6' }
+        lineStyle: { type: 'dashed', color: '#76A9D6' },
+        itemStyle: { color: '#76A9D6' }
       }
     ]
   }, true)
@@ -506,11 +535,11 @@ function renderFunnelChart(data) {
         },
         itemStyle: { borderWidth: 0 },
         data: [
-          { value: 100, name: '访客会话',   itemStyle: { color: '#409EFF' } },
+          { value: 100, name: '访客会话',   itemStyle: { color: '#FF7A1A' } },
           { value: Math.round(pageViews / sessions * 100) || 60,
-            name: '页面浏览',   itemStyle: { color: '#67C23A' } },
+            name: '页面浏览',   itemStyle: { color: '#4ADE80' } },
           { value: Math.round(conversions / sessions * 100) || 10,
-            name: '成功下单',   itemStyle: { color: '#E6A23C' } }
+            name: '成功下单',   itemStyle: { color: '#E8B14B' } }
         ]
       }
     ]
@@ -553,7 +582,44 @@ onMounted(async () => {
     funnelChart?.resize()
   })
 
+  // GSAP entrance animations
+  gsapCtx = gsap.context(() => {
+    // Header reveal
+    gsap.from('.header', { y: -10, duration: 0.5 })
+
+    // MetricCards stagger entrance
+    ScrollTrigger.batch('.metric-card', {
+      onEnter: (els) => gsap.from(els, {
+        y: 12, autoAlpha: 0, stagger: 0.08, duration: 0.5, ease: 'power3.out'
+      }),
+      once: true,
+      start: 'top 95%',
+    })
+
+    // Chart boxes fade+scale on scroll
+    ScrollTrigger.batch('.echarts-box', {
+      onEnter: (els) => gsap.from(els, {
+        autoAlpha: 0, scale: 0.97, stagger: 0.1, duration: 0.6, ease: 'power2.out'
+      }),
+      once: true,
+      start: 'top 90%',
+    })
+
+    // Table rows stagger
+    ScrollTrigger.batch('.el-table__row', {
+      onEnter: (els) => gsap.from(els, {
+        x: -6, autoAlpha: 0, stagger: 0.04, duration: 0.35, ease: 'power2.out'
+      }),
+      once: true,
+      start: 'top 92%',
+    })
+  }, dashRef.value)
+
   loadAll()
+})
+
+onUnmounted(() => {
+  gsapCtx?.revert()
 })
 </script>
 
@@ -570,11 +636,12 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color);
   border-radius: 8px;
   padding: 12px 20px;
   margin-bottom: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
 }
 .header-left {
   display: flex;
@@ -585,12 +652,12 @@ onMounted(async () => {
 .title {
   font-size: 18px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--el-text-color-primary);
   line-height: 1.3;
 }
 .subtitle {
   font-size: 12px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin-top: 2px;
 }
 .header-right {
@@ -618,9 +685,10 @@ onMounted(async () => {
 }
 .chart-card :deep(.el-card__header) {
   padding: 10px 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--el-border-color);
   font-weight: 600;
   font-size: 14px;
+  color: var(--el-text-color-primary);
 }
 .card-header {
   display: flex;
@@ -633,17 +701,15 @@ onMounted(async () => {
   width: 100%;
 }
 
-/* ── 库存表格行颜色 ── */
-:deep(.row-danger) td { background-color: #fff0f0 !important; }
-:deep(.row-warning) td { background-color: #fffbf0 !important; }
-.text-danger  { color: #F56C6C; font-weight: 600; }
-.text-warning { color: #E6A23C; font-weight: 600; }
-.text-normal  { color: #67C23A; }
+/* ── 库存表格行颜色（dark override in tokens.css） ── */
+.text-danger  { color: #FB5F5F; font-weight: 600; }
+.text-warning { color: #E8B14B; font-weight: 600; }
+.text-normal  { color: #4ADE80; }
 
 /* ── 底部 ── */
 .footer {
   text-align: center;
-  color: #C0C4CC;
+  color: var(--el-text-color-placeholder);
   font-size: 12px;
   padding: 12px 0;
 }

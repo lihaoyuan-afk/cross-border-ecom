@@ -65,8 +65,9 @@ graph TD
 | 层级 | 技术 |
 |------|------|
 | 后端 | Spring Boot 3.2 · Java 17 · MyBatis-Plus 3.5 · MySQL 8.0 · Lombok |
-| 前端 | Vue 3.4 · Vue Router 4 · Element Plus 2.6 · ECharts 5.5 · Vite 5 |
+| 前端 | Vue 3.4 · Vue Router 4 · Element Plus 2.6（深色主题）· ECharts 5.5 · GSAP 3.15（ScrollTrigger）· Vite 5 |
 | 数据脚本 | Python · pymysql · numpy · Faker |
+| 主题 | Night Freight 暗色设计系统（深炭灰 #0E0F12 · 货柜橙 #FF7A1A · 路由切换 GSAP 过渡动画） |
 
 ---
 
@@ -201,5 +202,6 @@ npm run dev
 • Python 脚本模拟 90 天历史数据（正态分布波动），生成 13,500+ 条时序记录
 • 实现两级预警配置（ASIN 级 > 全局回退），支持价格下跌/上涨/BSR 双向 4 类预警
 • 前端 Vue 3 + ECharts 绘制价格与 BSR 走势折线图，支持 7/30/90 天时间维度切换
+• GSAP 3.15 驱动路由切换淡入淡出、侧栏橙色 indicator、未读角标脉冲动画，Night Freight 暗色主题
 • 基于 MyBatis-Plus 实现分页查询与时序范围查询，接口响应时间 < 100ms
 ```

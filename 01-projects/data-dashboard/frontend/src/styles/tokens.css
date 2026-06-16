@@ -1,0 +1,53 @@
+/* ── Night Freight 夜行货柜 · design tokens ── */
+:root {
+  --orange:    #FF7A1A;
+  --orange-2:  #FF5A00;
+  --good:      #4ADE80;
+  --warn:      #E8B14B;
+  --bad:       #FB5F5F;
+  --info:      #76A9D6;
+  --text-dim:  #5A6072;
+}
+
+/* ── Override Element Plus dark CSS variables ── */
+html.dark {
+  --el-bg-color:          #16181E;
+  --el-bg-color-page:     #0E0F12;
+  --el-bg-color-overlay:  #1C1F27;
+
+  --el-color-primary:       #FF7A1A;
+  --el-color-primary-dark-2: #E05A00;
+  --el-color-primary-light-3: rgba(255,122,26,0.3);
+  --el-color-primary-light-5: rgba(255,122,26,0.5);
+  --el-color-primary-light-7: rgba(255,122,26,0.7);
+  --el-color-primary-light-8: rgba(255,122,26,0.8);
+  --el-color-primary-light-9: rgba(255,122,26,0.9);
+
+  --el-color-success:   #4ADE80;
+  --el-color-warning:   #E8B14B;
+  --el-color-danger:    #FB5F5F;
+  --el-color-info:      #76A9D6;
+
+  --el-border-color:       #2A2D36;
+  --el-border-color-light: #2A2D36;
+  --el-border-color-extra-light: #22252E;
+
+  --el-text-color-primary:   #E6E8EE;
+  --el-text-color-regular:   #C8CAD4;
+  --el-text-color-secondary: #9097A6;
+  --el-text-color-placeholder: #5A6072;
+
+  --el-fill-color:          #1C1F27;
+  --el-fill-color-light:    #16181E;
+  --el-fill-color-blank:    #16181E;
+  --el-fill-color-darker:   #0E0F12;
+}
+
+/* ── Font ── */
+html {
+  font-family: 'Inter', 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Override table row highlight colors for Night Freight ── */
+html.dark .row-danger  td { background-color: rgba(251, 95, 95, 0.08) !important; }
+html.dark .row-warning td { background-color: rgba(232,177,75,0.07)  !important; }

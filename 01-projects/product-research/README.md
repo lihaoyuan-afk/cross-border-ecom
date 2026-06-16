@@ -55,6 +55,7 @@ product-research/
 | 数据处理 | pandas ≥ 2.0 |
 | 可视化 | Plotly ≥ 5.20（条形图 / 散点图 / 雷达图 / 漏斗图） |
 | 数据来源 | 本地 CSV（200 条 mock 数据，无需网络） |
+| 主题 | Night Freight 暗色配色（`.streamlit/config.toml` + Plotly `plotly_dark` 模板 · 货柜橙 #FF7A1A） |
 
 ---
 

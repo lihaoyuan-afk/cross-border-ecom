@@ -3,7 +3,12 @@ import App from './App.vue'
 import router from './router/index.js'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
+import './styles/tokens.css'
+import './animation/gsap.js'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
+document.documentElement.classList.add('dark')
 import VueECharts from 'vue-echarts'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'

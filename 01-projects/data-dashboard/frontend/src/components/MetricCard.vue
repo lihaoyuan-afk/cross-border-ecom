@@ -37,7 +37,7 @@ defineProps({
 <style scoped>
 .metric-card {
   border-radius: 8px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--el-border-color);
 }
 .metric-card :deep(.el-card__body) {
   padding: 16px 20px;
@@ -52,15 +52,17 @@ defineProps({
   display: flex;
   align-items: center;
   font-size: 13px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin-bottom: 6px;
 }
 .card-value {
   font-size: 24px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--el-text-color-primary);
   line-height: 1.2;
   letter-spacing: -0.5px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
 }
 .card-change {
   font-size: 12px;
@@ -69,7 +71,7 @@ defineProps({
 }
 .change-label {
   font-weight: 400;
-  color: #C0C4CC;
+  color: var(--el-text-color-placeholder);
   margin-left: 4px;
 }
 .icon-wrap {

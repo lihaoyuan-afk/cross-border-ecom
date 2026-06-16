@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="dashRef">
     <h2 class="page-title">监控看板</h2>
 
     <!-- 4 个核心指标卡片 -->
@@ -74,14 +74,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { getDashboardOverview, getAlertList, markAlertRead } from '../api/index.js'
 import { ElMessage } from 'element-plus'
+import { gsap, ScrollTrigger } from '../animation/gsap.js'
 
 const overview = ref({})
 const alerts = ref([])
 const loading = ref(false)
 const alertLoading = ref(false)
+const dashRef = ref(null)
+let gsapCtx
 
 const typeLabelMap = {
   PRICE_DROP: '价格下跌', PRICE_RISE: '价格上涨',
@@ -96,22 +99,22 @@ const statCards = computed(() => [
   {
     label: '监控商品总数',
     value: overview.value.totalProducts ?? '—',
-    icon: 'Goods', color: '#409eff',
+    icon: 'Goods', color: '#FF7A1A',
   },
   {
     label: '今日预警',
     value: overview.value.todayAlerts ?? '—',
-    icon: 'Warning', color: '#f56c6c',
+    icon: 'Warning', color: '#FB5F5F',
   },
   {
     label: '未读预警',
     value: overview.value.unreadAlerts ?? '—',
-    icon: 'Bell', color: '#e6a23c',
+    icon: 'Bell', color: '#E8B14B',
   },
   {
     label: '近24h价格下跌预警',
     value: overview.value.recentPriceDrops ?? '—',
-    icon: 'TrendCharts', color: '#67c23a',
+    icon: 'TrendCharts', color: '#4ADE80',
   },
 ])
 
@@ -140,21 +143,54 @@ const handleMarkRead = async (row) => {
   ElMessage.success('已标记为已读')
 }
 
-onMounted(loadData)
+onMounted(() => {
+  gsapCtx = gsap.context(() => {
+    gsap.from('.page-title', { x: -8, duration: 0.45 })
+
+    ScrollTrigger.batch('.stat-card', {
+      onEnter: (els) => gsap.from(els, {
+        y: 12, autoAlpha: 0, stagger: 0.08, duration: 0.5, ease: 'power3.out'
+      }),
+      once: true,
+      start: 'top 95%',
+    })
+
+    ScrollTrigger.batch('.el-table__row', {
+      onEnter: (els) => gsap.from(els, {
+        x: -5, autoAlpha: 0, stagger: 0.04, duration: 0.35, ease: 'power2.out'
+      }),
+      once: true,
+      start: 'top 92%',
+    })
+  }, dashRef.value)
+
+  loadData()
+})
+
+onUnmounted(() => {
+  gsapCtx?.revert()
+})
 </script>
 
 <style scoped>
-.page-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #303133; }
+.page-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--el-text-color-primary); }
 .stat-card { border-radius: 8px; }
 .stat-inner { display: flex; align-items: center; gap: 16px; }
 .stat-icon {
   width: 52px; height: 52px; border-radius: 10px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.stat-val { font-size: 26px; font-weight: 700; color: #303133; line-height: 1.2; }
-.stat-label { font-size: 12px; color: #909399; margin-top: 4px; }
+.stat-val {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--el-text-color-primary);
+  line-height: 1.2;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label { font-size: 12px; color: var(--el-text-color-secondary); margin-top: 4px; }
 .card-hd { display: flex; justify-content: space-between; align-items: center; }
-.card-hd-title { font-weight: 600; }
-.c-red { color: #f56c6c; font-weight: 600; }
-.c-orange { color: #e6a23c; font-weight: 600; }
+.card-hd-title { font-weight: 600; color: var(--el-text-color-primary); }
+.c-red { color: #FB5F5F; font-weight: 600; }
+.c-orange { color: #E8B14B; font-weight: 600; }
 </style>

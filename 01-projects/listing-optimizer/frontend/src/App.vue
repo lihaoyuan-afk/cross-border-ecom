@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="appRef">
     <!-- Header -->
     <header class="app-header">
       <span style="font-size:22px">📊</span>
@@ -94,7 +94,7 @@
           <!-- 总分 -->
           <div class="total-score-wrap">
             <div class="total-score-number" :class="`grade-${scoreResult.grade.toLowerCase()}`">
-              {{ scoreResult.total_score }}
+              {{ displayScore }}
             </div>
             <div style="margin-top:4px">
               <span class="grade-badge" :class="`grade-${scoreResult.grade.toLowerCase()}`">
@@ -122,10 +122,7 @@
               <div class="score-bar-bg">
                 <div
                   class="score-bar-fill"
-                  :style="{
-                    width: d.score * 10 + '%',
-                    background: dimColor(d.score)
-                  }"
+                  :style="{ background: dimColor(d.score) }"
                 />
               </div>
               <div class="dim-issue">{{ d.issue }}</div>
@@ -200,11 +197,12 @@
 
           <template v-if="rewriteResult">
             <!-- 对比 tabs -->
-            <div class="rewrite-tabs" style="margin-top:12px">
+            <div class="rewrite-tabs" ref="tabsRef" style="margin-top:12px">
               <button class="tab-btn" :class="{active: rewriteTab==='original'}" @click="rewriteTab='original'">原始</button>
               <button class="tab-btn" :class="{active: rewriteTab==='title'}" @click="rewriteTab='title'">标题</button>
               <button class="tab-btn" :class="{active: rewriteTab==='bullets'}" @click="rewriteTab='bullets'">Bullets</button>
               <button class="tab-btn" :class="{active: rewriteTab==='desc'}" @click="rewriteTab='desc'">描述</button>
+              <div class="tab-ink" ref="tabInkRef"></div>
             </div>
 
             <div class="rewrite-content">
@@ -262,9 +260,18 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import * as echarts from 'echarts'
+import { gsap, Flip } from './animation/gsap.js'
+
+// ── Animation refs ──
+const appRef = ref(null)
+const tabsRef = ref(null)
+const tabInkRef = ref(null)
+const displayScore = ref(0)
+const scoreProxy = { val: 0 }
+let gsapCtx
 
 // ── State ──
 const form = ref({
@@ -351,13 +358,13 @@ const initRadar = async (dimensions) => {
       axisName: { color: '#7a7f9a', fontSize: 11 },
       splitArea: {
         areaStyle: {
-          color: ['rgba(79,142,247,0.03)', 'rgba(79,142,247,0.06)',
-                  'rgba(79,142,247,0.09)', 'rgba(79,142,247,0.12)',
-                  'rgba(79,142,247,0.15)']
+          color: ['rgba(255,122,26,0.03)', 'rgba(255,122,26,0.05)',
+                  'rgba(255,122,26,0.08)', 'rgba(255,122,26,0.11)',
+                  'rgba(255,122,26,0.14)']
         }
       },
-      axisLine: { lineStyle: { color: 'rgba(79,142,247,0.2)' } },
-      splitLine: { lineStyle: { color: 'rgba(79,142,247,0.2)' } },
+      axisLine: { lineStyle: { color: 'rgba(255,122,26,0.2)' } },
+      splitLine: { lineStyle: { color: 'rgba(255,122,26,0.15)' } },
     },
     series: [{
       type: 'radar',
@@ -379,6 +386,85 @@ const initRadar = async (dimensions) => {
     }]
   })
 }
+
+// ── GSAP: tab ink helper ──
+function moveTabInk(activeBtn) {
+  if (!tabInkRef.value || !activeBtn) return
+  gsap.to(tabInkRef.value, {
+    x: activeBtn.offsetLeft,
+    width: activeBtn.offsetWidth,
+    duration: 0.25,
+    ease: 'power2.out',
+  })
+}
+
+// ── GSAP: lifecycle ──
+onMounted(() => {
+  gsapCtx = gsap.context(() => {
+    gsap.from('.app-header', { x: -10, duration: 0.5 })
+    gsap.from('.field', { y: 8, stagger: 0.05, duration: 0.4, delay: 0.25 })
+    gsap.from('.btn', { y: 6, stagger: 0.07, duration: 0.35, delay: 0.45 })
+  }, appRef.value)
+})
+
+onUnmounted(() => {
+  gsapCtx?.revert()
+})
+
+// ── GSAP: score result ──
+watch(scoreResult, async (result) => {
+  if (!result) { displayScore.value = 0; return }
+  await nextTick()
+
+  // Count-up total score
+  scoreProxy.val = 0
+  gsap.to(scoreProxy, {
+    val: result.total_score,
+    duration: 1.0,
+    ease: 'power3.out',
+    onUpdate() { displayScore.value = Math.round(scoreProxy.val) },
+  })
+
+  // Grade badge pop in after count finishes
+  gsap.from('.grade-badge', { scale: 0.82, autoAlpha: 0, duration: 0.35, delay: 0.65 })
+
+  // Radar chart scale entrance
+  gsap.from('#radar-chart', { scale: 0.92, autoAlpha: 0, duration: 0.6, delay: 0.15 })
+
+  // Dim-items stagger
+  gsap.from('.dim-item', { y: 10, autoAlpha: 0, stagger: 0.07, duration: 0.45, delay: 0.3, overwrite: 'auto' })
+
+  // Score bars: tween from 0 to actual percentage
+  const bars = appRef.value?.querySelectorAll('.score-bar-fill') ?? []
+  result.dimensions.forEach((d, i) => {
+    gsap.to(bars[i], { width: (d.score * 10) + '%', duration: 0.7, delay: 0.35 + i * 0.06, ease: 'power2.out', overwrite: true })
+  })
+})
+
+// ── GSAP: suggestions stagger ──
+watch(suggestions, async (val) => {
+  if (!val) return
+  await nextTick()
+  gsap.from('.suggest-item', { y: 8, autoAlpha: 0, stagger: 0.05, duration: 0.4, delay: 0.1, overwrite: 'auto' })
+})
+
+// ── GSAP: rewrite result ──
+watch(rewriteResult, async (val) => {
+  if (!val) return
+  await nextTick()
+  gsap.from('.rewrite-content', { y: 6, autoAlpha: 0, duration: 0.35 })
+  // Init tab ink on first appear
+  const activeBtn = tabsRef.value?.querySelector('.tab-btn.active')
+  moveTabInk(activeBtn)
+})
+
+// ── GSAP: tab ink slide ──
+watch(rewriteTab, async () => {
+  await nextTick()
+  const activeBtn = tabsRef.value?.querySelector('.tab-btn.active')
+  moveTabInk(activeBtn)
+  gsap.from('.rewrite-content', { autoAlpha: 0, duration: 0.2 })
+})
 
 // ── API calls ──
 const handleScore = async () => {

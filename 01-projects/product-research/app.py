@@ -11,6 +11,17 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
+
+# Night Freight 夜行货柜 palette
+NF_COLORS = ["#FF7A1A", "#4ADE80", "#FB5F5F", "#E8B14B", "#76A9D6", "#C084FC", "#38BDF8"]
+NF_LAYOUT = dict(
+    template="plotly_dark",
+    paper_bgcolor="#16181E",
+    plot_bgcolor="#16181E",
+    font=dict(family="Inter, PingFang SC, sans-serif", color="#E6E8EE"),
+    colorway=NF_COLORS,
+)
 
 # ── 页面配置 ─────────────────────────────────────────────────
 st.set_page_config(
@@ -114,44 +125,43 @@ with tab1:
                 cat_count, x="类目", y="商品数",
                 title="各类目商品数量",
                 color="类目",
-                color_discrete_sequence=px.colors.qualitative.Pastel,
+                color_discrete_sequence=NF_COLORS,
             )
-            fig.update_layout(showlegend=False)
+            fig.update_layout(showlegend=False, **NF_LAYOUT)
             st.plotly_chart(fig, use_container_width=True)
 
         with col_r:
-            # 各类目平均月销售额
             rev_by_cat = filtered.groupby("category")["monthly_revenue"].mean().reset_index()
             rev_by_cat.columns = ["类目", "平均月销售额($)"]
             fig2 = px.bar(
                 rev_by_cat, x="类目", y="平均月销售额($)",
                 title="各类目平均月销售额",
                 color="类目",
-                color_discrete_sequence=px.colors.qualitative.Set2,
+                color_discrete_sequence=NF_COLORS,
             )
-            fig2.update_layout(showlegend=False)
+            fig2.update_layout(showlegend=False, **NF_LAYOUT)
             st.plotly_chart(fig2, use_container_width=True)
 
         col_l2, col_r2 = st.columns(2)
 
         with col_l2:
-            # 价格分布直方图
             fig3 = px.histogram(
                 filtered, x="price", nbins=20,
                 title="价格分布",
-                color_discrete_sequence=["#636EFA"],
+                color_discrete_sequence=["#FF7A1A"],
                 labels={"price": "价格 ($)", "count": "商品数"},
             )
+            fig3.update_layout(**NF_LAYOUT)
             st.plotly_chart(fig3, use_container_width=True)
 
         with col_r2:
-            # 评分分布
             fig4 = px.histogram(
                 filtered, x="rating", nbins=15,
                 title="评分分布",
-                color_discrete_sequence=["#EF553B"],
+                color_discrete_sequence=["#4ADE80"],
                 labels={"rating": "评分", "count": "商品数"},
             )
+            fig4.update_layout(**NF_LAYOUT)
             st.plotly_chart(fig4, use_container_width=True)
 
 
@@ -181,13 +191,13 @@ with tab2:
             top_df, x="score", y="title",
             orientation="h",
             color="score",
-            color_continuous_scale="RdYlGn",
+            color_continuous_scale=[[0, "#FB5F5F"], [0.5, "#E8B14B"], [1, "#4ADE80"]],
             range_color=[0, 100],
             labels={"score": "综合评分", "title": "商品"},
             title=f"Top {top_n} 选品评分",
             hover_data=["brand", "category", "price", "bsr", "reviews", "monthly_revenue"],
         )
-        fig.update_layout(yaxis={"autorange": "reversed"}, height=max(400, top_n * 28))
+        fig.update_layout(yaxis={"autorange": "reversed"}, height=max(400, top_n * 28), **NF_LAYOUT)
         fig.update_coloraxes(showscale=False)
         st.plotly_chart(fig, use_container_width=True)
 
@@ -219,8 +229,9 @@ with tab2:
             hover_data=["brand", "price", "rating", "score"],
             labels={"bsr": "BSR 排名", "monthly_revenue": "月销售额($)", "reviews": "评价数"},
             title="BSR 排名 vs 月销售额（气泡大小 = 评价数）",
-            color_discrete_sequence=px.colors.qualitative.Safe,
+            color_discrete_sequence=NF_COLORS,
         )
+        fig2.update_layout(**NF_LAYOUT)
         st.plotly_chart(fig2, use_container_width=True)
 
 
@@ -255,10 +266,10 @@ with tab3:
                 wf_df, x="出现次数", y="关键词",
                 orientation="h",
                 color="出现次数",
-                color_continuous_scale="Blues",
+                color_continuous_scale=[[0, "#1C1F27"], [1, "#FF7A1A"]],
                 title="Top 30 高频关键词",
             )
-            fig.update_layout(yaxis={"autorange": "reversed"}, height=550)
+            fig.update_layout(yaxis={"autorange": "reversed"}, height=550, **NF_LAYOUT)
             fig.update_coloraxes(showscale=False)
             st.plotly_chart(fig, use_container_width=True)
 
@@ -291,8 +302,9 @@ with tab3:
             cat_freq, x="关键词", y="出现次数",
             title=f"「{cat_select}」类目 Top 15 关键词",
             color="出现次数",
-            color_continuous_scale="Greens",
+            color_continuous_scale=[[0, "#1C2A1E"], [1, "#4ADE80"]],
         )
+        fig2.update_layout(**NF_LAYOUT)
         fig2.update_coloraxes(showscale=False)
         st.plotly_chart(fig2, use_container_width=True)
 
@@ -333,7 +345,7 @@ with tab4:
         categories_radar = ["平均选品评分", "平均月销售额", "平均评分"]
         fig = go.Figure()
 
-        colors = ["#636EFA", "#EF553B", "#00CC96", "#AB63FA"]
+        colors = NF_COLORS
         for i, row in comp.iterrows():
             norm_score = row["平均选品评分"] / 100
             norm_revenue = min(row["平均月销售额"] / 10000, 1.0)
@@ -351,9 +363,13 @@ with tab4:
             ))
 
         fig.update_layout(
-            polar={"radialaxis": {"visible": True, "range": [0, 1]}},
+            polar={
+                "radialaxis": {"visible": True, "range": [0, 1], "color": "#9097A6"},
+                "bgcolor": "#16181E",
+            },
             title="各类目综合对比雷达图（归一化）",
             height=450,
+            **NF_LAYOUT,
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -368,10 +384,11 @@ with tab4:
                 x="竞争指数", y="类目",
                 orientation="h",
                 color="竞争指数",
-                color_continuous_scale="RdYlGn_r",
+                color_continuous_scale=[[0, "#4ADE80"], [0.5, "#E8B14B"], [1, "#FB5F5F"]],
                 title="各类目竞争指数（越高越激烈）",
                 range_color=[0, 100],
             )
+            fig2.update_layout(**NF_LAYOUT)
             fig2.update_coloraxes(showscale=False)
             st.plotly_chart(fig2, use_container_width=True)
 
@@ -385,21 +402,20 @@ with tab4:
                 text="类目",
                 title="机会象限：评价门槛 vs 市场规模",
                 labels={"平均评价数": "进入门槛（平均评价数）", "平均月销售额": "市场规模（平均月销售额$）"},
-                color_discrete_sequence=px.colors.qualitative.Safe,
+                color_discrete_sequence=NF_COLORS,
             )
             fig3.update_traces(textposition="top center")
+            fig3.update_layout(**NF_LAYOUT)
 
-            # 添加象限参考线
             x_mid = comp["平均评价数"].median()
             y_mid = comp["平均月销售额"].median()
-            fig3.add_hline(y=y_mid, line_dash="dot", line_color="gray", opacity=0.5)
-            fig3.add_vline(x=x_mid, line_dash="dot", line_color="gray", opacity=0.5)
+            fig3.add_hline(y=y_mid, line_dash="dot", line_color="#2A2D36", opacity=0.8)
+            fig3.add_vline(x=x_mid, line_dash="dot", line_color="#2A2D36", opacity=0.8)
 
-            # 象限标注
             fig3.add_annotation(text="⭐ 理想机会", x=comp["平均评价数"].min(), y=comp["平均月销售额"].max(),
-                                showarrow=False, font_color="#00CC96", font_size=11)
+                                showarrow=False, font_color="#4ADE80", font_size=11)
             fig3.add_annotation(text="⚠️ 高门槛高回报", x=comp["平均评价数"].max(), y=comp["平均月销售额"].max(),
-                                showarrow=False, font_color="#EF553B", font_size=11)
+                                showarrow=False, font_color="#FB5F5F", font_size=11)
 
             st.plotly_chart(fig3, use_container_width=True)
 

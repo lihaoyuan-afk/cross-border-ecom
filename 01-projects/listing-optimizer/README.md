@@ -56,8 +56,9 @@ graph LR
 | 层级 | 技术 |
 |------|------|
 | 后端 | Python 3.11 · Flask 3.0 · flask-cors · openai · python-dotenv |
-| 前端 | Vue 3.4 · ECharts 5.5（雷达图 dark 主题）· Axios · Vite 5 |
+| 前端 | Vue 3.4 · ECharts 5.5（雷达图 dark 主题）· GSAP 3.15（ScrollTrigger / Flip）· Axios · Vite 5 |
 | AI | OpenAI GPT-4o API（无 Key 自动 Mock，演示效果一致） |
+| 主题 | Night Freight 暗色设计系统（深炭灰 #0E0F12 · 货柜橙 #FF7A1A · JetBrains Mono 数字字体） |
 
 ---
 
@@ -191,5 +192,6 @@ Amazon Listing 质量评分与优化引擎 | Python Flask + Vue 3 + OpenAI | 个
 • 实现规则引擎将优化建议自动分为三级优先级，为运营提供可执行的改进路径
 • 集成 OpenAI GPT-4o 进行英文 Listing 重写，设计 Mock 回退机制保证无 Key 时完整演示
 • 前端三栏布局（输入 / 评分雷达图 / 建议），ECharts Dark 主题 8 轴雷达图直观呈现得分分布
+• GSAP 3.15 驱动总分数字 count-up 动画、维度列表错峰入场、Tab 切换下划线 Flip 过渡，Night Freight 暗色主题
 • 将人工 Listing 审查从 30 分钟压缩到 3 分钟，演示场景与真实运营工作高度吻合
 ```

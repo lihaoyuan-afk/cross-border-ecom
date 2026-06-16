@@ -13,7 +13,7 @@ import Dashboard from './views/Dashboard.vue'
   box-sizing: border-box;
 }
 body {
-  background: #f0f2f5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #0E0F12;
+  font-family: 'Inter', 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 </style>

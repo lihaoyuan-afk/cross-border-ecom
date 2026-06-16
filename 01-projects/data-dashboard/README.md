@@ -68,8 +68,9 @@ graph TB
 | 层级 | 技术 |
 |------|------|
 | 后端 | Spring Boot 3.2 · Java 17 · MyBatis-Plus · EasyExcel · Lombok |
-| 前端 | Vue 3 · Element Plus · ECharts 5 · Axios · Vite |
+| 前端 | Vue 3 · Element Plus（深色主题）· ECharts 5 · GSAP 3.15（ScrollTrigger）· Axios · Vite |
 | 数据脚本 | Python · mysql-connector-python |
+| 主题 | Night Freight 暗色设计系统（深炭灰 #0E0F12 · 货柜橙 #FF7A1A · JetBrains Mono 数字字体） |
 
 ---
 
@@ -205,5 +206,6 @@ data-dashboard/
 • 后端构建 6 个 REST API，实现环比自动计算、库存断货分级预警
 • ECharts 折线 + 柱状混合图支持日/周/月粒度切换；ACoS 趋势图含 visualMap 颜色分段
 • EasyExcel 实现双 Sheet Excel 报表导出，替代人工制表节省每日 1-2 小时
+• GSAP 3.15 + ScrollTrigger 驱动 KPI 卡片错峰入场、ECharts 图表滚动淡入，Night Freight 暗色主题
 • 覆盖 2024 上半年 181 天历史数据，含情人节 / 618 促销峰值模拟
 ```
