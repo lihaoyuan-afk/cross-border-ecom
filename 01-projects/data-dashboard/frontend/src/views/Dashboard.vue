@@ -361,7 +361,7 @@ function renderSalesChart(data) {
       }
     },
     legend: { ...darkLegend, data: ['销售额', '订单量'], bottom: 4 },
-    grid: { top: 20, bottom: 52, left: 60, right: 50, containLabel: true },
+    grid: { top: 20, bottom: 52, left: 80, right: 50, containLabel: true },
     xAxis: {
       ...darkAxis,
       type: 'category',
@@ -590,16 +590,16 @@ onMounted(async () => {
     // MetricCards stagger entrance
     ScrollTrigger.batch('.metric-card', {
       onEnter: (els) => gsap.from(els, {
-        y: 12, autoAlpha: 0, stagger: 0.08, duration: 0.5, ease: 'power3.out'
+        y: 12, stagger: 0.08, duration: 0.5, ease: 'power3.out'
       }),
       once: true,
       start: 'top 95%',
     })
 
-    // Chart boxes fade+scale on scroll
+    // Chart boxes scale on scroll
     ScrollTrigger.batch('.echarts-box', {
       onEnter: (els) => gsap.from(els, {
-        autoAlpha: 0, scale: 0.97, stagger: 0.1, duration: 0.6, ease: 'power2.out'
+        scale: 0.97, stagger: 0.1, duration: 0.6, ease: 'power2.out'
       }),
       once: true,
       start: 'top 90%',
@@ -608,7 +608,7 @@ onMounted(async () => {
     // Table rows stagger
     ScrollTrigger.batch('.el-table__row', {
       onEnter: (els) => gsap.from(els, {
-        x: -6, autoAlpha: 0, stagger: 0.04, duration: 0.35, ease: 'power2.out'
+        x: -6, stagger: 0.04, duration: 0.35, ease: 'power2.out'
       }),
       once: true,
       start: 'top 92%',
