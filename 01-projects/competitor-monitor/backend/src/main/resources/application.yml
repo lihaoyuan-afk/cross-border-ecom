@@ -6,7 +6,7 @@ spring:
     # 请将 your_password 替换为你的 MySQL 密码
     url: jdbc:mysql://localhost:3306/competitor_monitor?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
     username: root
-    password: your_password
+    password: ${DB_PASSWORD:lihaoyuan123}
     driver-class-name: com.mysql.cj.jdbc.Driver
   # 关闭 Spring Boot 自动检测 JPA，只用 MyBatis-Plus
   autoconfigure:

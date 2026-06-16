@@ -1,60 +1,141 @@
 # Amazon Listing 质量评分与优化引擎
 
-> 基于 Amazon A9 算法的 8 维评分模型，结合 OpenAI GPT-4 自动重写高质量英文 Listing。
+> 基于 Amazon A9 算法的 8 维量化评分模型，提供中文优化建议与 AI 驱动的英文 Listing 重写，将 Listing 人工审查时间从 30 分钟压缩到 3 分钟。
 
-## 项目截图
-
-> 演示截图放置位置：`docs/screenshot-main.png`（评分主界面），`docs/screenshot-rewrite.png`（AI 重写对比）
-
-## 技术栈
-
-| 层级 | 技术 |
-|------|------|
-| 后端 | Python 3.11 · Flask 3.0 · flask-cors |
-| 前端 | Vue 3 · Vite · ECharts 5（雷达图） |
-| AI | OpenAI GPT-4o API（mock 模式无需 Key） |
+![Listing 评分界面](../../docs/screenshots/listing-optimizer-scoring.png)
 
 ---
 
-## 评分模型说明
+## 核心功能
 
-### 核心设计思路
+- **8 维量化评分**：标题长度 / 关键词密度 / Bullet 数量 / Bullet 长度 / 描述长度 / 图片数量 / 价格竞争力 / 评论数量，加权算出 0–100 分与 A/B/C/D 等级
+- **ECharts 雷达图**：Dark 主题 8 轴雷达图，直观呈现各维度得分分布
+- **三级优化建议**：规则引擎按得分自动分类为⚠紧急修复 / ↑重点提升 / ✓速效优化
+- **AI 重写 Listing**：调用 OpenAI GPT-4o 重写标题 / Bullet / 描述，无 API Key 时自动切换 Mock 模式完整演示
+- **演示数据一键加载**：点击「加载演示数据」按钮自动填充低分水杯 Listing，可立即演示完整评分流程
 
-评分模型基于 **Amazon A9 算法** 的两大核心目标：**搜索相关性**（让 Amazon 找到你的产品）和 **转化率**（让买家点击并购买）。8 个维度覆盖了运营人员日常 Listing 优化的核心检查点。
+---
+
+## 界面预览
+
+| 中文优化建议（三级分类） | AI 重写对比 |
+|------------------------|------------|
+| ![优化建议](../../docs/screenshots/listing-optimizer-suggestions.png) | ![AI 重写](../../docs/screenshots/listing-optimizer-rewrite.png) |
+
+---
+
+## 技术架构
+
+```mermaid
+graph LR
+    subgraph 前端 Vue 3 :3000
+        UI[App.vue<br/>三栏布局]
+        RC[ECharts 雷达图<br/>Dark 主题]
+    end
+
+    subgraph 后端 Flask :5000
+        A[app.py<br/>4 个路由]
+        B[scorer.py<br/>8 维评分引擎]
+        C[ai_optimizer.py<br/>规则建议 + AI 重写]
+    end
+
+    subgraph AI 层
+        D{OpenAI GPT-4o}
+        E[Mock 重写结果<br/>无 Key 时回退]
+    end
+
+    UI -->|POST /api/score| B
+    UI -->|POST /api/optimize| C
+    UI -->|POST /api/rewrite| A
+    A --> D
+    D -->|异常/无 Key| E
+```
+
+**技术栈**
+
+| 层级 | 技术 |
+|------|------|
+| 后端 | Python 3.11 · Flask 3.0 · flask-cors · openai · python-dotenv |
+| 前端 | Vue 3.4 · ECharts 5.5（雷达图 dark 主题）· Axios · Vite 5 |
+| AI | OpenAI GPT-4o API（无 Key 自动 Mock，演示效果一致） |
+
+---
+
+## 评分模型
 
 ### 8 维评分维度
 
-| # | 维度 | 权重 | 最优区间 | 意义 |
-|---|------|------|----------|------|
-| 1 | **标题长度** | ×2 | 80–200 字符 | 标题是 A9 算法权重最高的字段。过短则关键词覆盖不足；过长则移动端被截断，影响点击率 |
-| 2 | **关键词密度** | ×2 | 主词出现 1-2 次 | 关键词自然融入是 SEO 基础；堆砌（3次以上）会触发 Amazon 惩罚机制，导致排名下滑 |
-| 3 | **Bullet Points 数量** | ×2 | 5 条（满配） | Bullet 是转化率的核心载体，买家决策前必读。5 条充分展示产品价值，少于 3 条严重影响转化 |
-| 4 | **Bullet 平均长度** | ×2 | 150–250 字符/条 | 过短无法传递价值；过长影响可读性。150-250 字符是「功能+收益+数据」的黄金区间 |
-| 5 | **描述文字长度** | ×1 | >1000 字符 | Description 是 Amazon 索引的重要 SEO 字段，同时为 A+ Content 奠定基础 |
-| 6 | **图片数量** | ×1 | 7 张（满配） | 图片是转化第一要素。7 张涵盖：白底主图、场景图、细节图、尺寸图、信息图，全方位打消买家疑虑 |
-| 7 | **价格竞争力** | ×1 | 类目均价 ±15% | 价格是 A9 Buy Box 算法的核心因素，也直接影响点击率和转化率 |
-| 8 | **评论数量** | ×1 | >50 条（基准线） | 评论是 Amazon 最强信任信号。50 条是大多数类目建立竞争力的最低门槛 |
+| # | 维度 | 权重 | 最优区间 | 核心原理 |
+|---|------|------|----------|---------|
+| 1 | 标题长度 | ×2 | 80–200 字符 | A9 权重最高字段；过短则关键词不足，过长移动端被截断 |
+| 2 | 关键词密度 | ×2 | 主词出现 1–2 次 | 自然融入 SEO 基础；重复 ≥ 3 次触发 Amazon 惩罚 |
+| 3 | Bullet Points 数量 | ×2 | 5 条（满配） | 买家决策必读；少于 3 条严重影响转化 |
+| 4 | Bullet 平均长度 | ×2 | 150–250 字符/条 | 黄金区间：功能 + 收益 + 数据均可表达 |
+| 5 | 描述文字长度 | ×1 | > 1000 字符 | Amazon 索引的重要 SEO 字段 |
+| 6 | 图片数量 | ×1 | 7 张（满配） | 转化第一要素；7 张覆盖白底 / 场景 / 细节 / 尺寸 / 信息图 |
+| 7 | 价格竞争力 | ×1 | 类目均价 ±15% | A9 Buy Box 核心因素，直接影响点击率 |
+| 8 | 评论数量 | ×1 | > 50 条 | 最强信任信号；50 条是大多数类目最低竞争门槛 |
+
+### 评论数分段函数
+
+评论数维度不是线性评分，而是分段处理：
+
+```
+< 50 条     线性增长（0→10 分）
+50–500 条   最佳区间，满分 10 分
+500–2000 条 缓慢衰减（竞争门槛已很高）
+> 2000 条   趋稳在 7 分（头部品牌竞争激烈）
+```
 
 ### 加权计算公式
 
 ```
-总分 = (各维度得分 × 权重之和) / 总权重 × 10
-
-等级：A (85+) · B (70-84) · C (55-69) · D (<55)
+总分 = Σ(各维度得分 × 权重) / Σ权重 × 10
+等级：A (≥85) · B (70–84) · C (55–69) · D (<55)
 ```
 
 ---
 
-## 快速启动
+## 优化建议分级规则
 
-### 1. 克隆项目
+`ai_optimizer.py` 中的规则引擎按维度得分自动分类：
 
-```bash
-git clone <repo-url>
-cd listing-optimizer
+| 分级 | 得分区间 | 含义 |
+|------|---------|------|
+| ⚠ 紧急修复 (priority_actions) | < 5 | 严重影响排名与转化，优先解决 |
+| ↑ 重点提升 (improvements) | 5 – 7.5 | 仍有明显提升空间 |
+| ✓ 速效优化 (quick_wins) | 7.5 – 9 | 得分已好，小改动可进一步提升 |
+
+---
+
+## API 接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/score` | 8 维评分，返回各维度得分 + 总分 + 等级 + summary |
+| POST | `/api/optimize` | 规则引擎优化建议（三级分类） |
+| POST | `/api/rewrite` | AI 重写（GPT-4o 或 Mock） |
+| GET | `/api/health` | 健康检查，返回 `{status, ai_mode: real\|mock}` |
+
+**请求示例（`POST /api/score`）：**
+
+```json
+{
+  "title": "Water Bottle Stainless Steel 32oz Vacuum Insulated",
+  "bullets": ["Keeps drinks cold", "BPA Free", "Leak Proof"],
+  "description": "This water bottle is made of stainless steel.",
+  "image_count": 4,
+  "price": 34.99,
+  "avg_category_price": 25.00,
+  "review_count": 12
+}
 ```
 
-### 2. 启动后端
+---
+
+## 本地运行
+
+### 1. 启动后端
 
 ```bash
 cd backend
@@ -63,22 +144,18 @@ python app.py
 # 后端运行在 http://localhost:5000
 ```
 
-### 3. 配置 OpenAI API Key（可选）
+### 2. 配置 OpenAI API Key（可选）
 
 ```bash
-# Linux / macOS
-export OPENAI_API_KEY=sk-...your-key...
-
-# Windows CMD
-set OPENAI_API_KEY=sk-...your-key...
-
 # Windows PowerShell
 $env:OPENAI_API_KEY="sk-...your-key..."
+# Linux / macOS
+export OPENAI_API_KEY=sk-...your-key...
 ```
 
-> **不配置 API Key 也可完整演示**：系统自动进入 mock 模式，返回专业的示例重写结果，面试演示效果与真实 API 调用完全一致。
+> **不配置也可完整演示**：系统自动进入 Mock 模式，返回专业示例重写结果，面试演示效果与真实 API 一致。
 
-### 4. 启动前端
+### 3. 启动前端
 
 ```bash
 cd frontend
@@ -87,60 +164,32 @@ npm run dev
 # 前端运行在 http://localhost:3000
 ```
 
----
+### 4. 演示流程
 
-## API 接口文档
-
-### `POST /api/score` — Listing 评分
-
-**Request body:**
-```json
-{
-  "title": "产品标题（英文）",
-  "bullets": ["bullet1", "bullet2", "..."],
-  "description": "产品描述",
-  "image_count": 7,
-  "price": 29.99,
-  "avg_category_price": 25.00,
-  "review_count": 45
-}
-```
-
-**Response:**
-```json
-{
-  "dimensions": [
-    {"name": "标题长度", "score": 9.0, "weight": 2.0, "issue": "...", "suggestion": "..."}
-  ],
-  "total_score": 76.5,
-  "grade": "B",
-  "summary": "..."
-}
-```
-
-### `POST /api/optimize` — 获取优化建议
-
-同 `/api/score` 请求格式，返回按优先级分类的优化建议。
-
-### `POST /api/rewrite` — AI 重写 Listing
-
-同 `/api/score` 请求格式，额外支持 `target_keyword` 和 `category` 字段。
+1. 打开 `http://localhost:3000`
+2. 点击「📋 加载演示数据」——自动填充一个低分水杯 Listing（C 级，61.5 分）
+3. 点击「🔍 开始评分」——查看雷达图与 8 维评分卡
+4. 点击「💡 获取优化建议」——查看三级优化建议
+5. 点击「✨ AI 重写 Listing」——查看 AI 重写对比
 
 ---
 
-## 简历描述建议
+## 🗺 后续规划
 
-### 项目名称
-**Amazon Listing 质量评分与优化引擎**
+- [ ] 支持批量评分（CSV 上传，批量分析多个 Listing）
+- [ ] 历史评分记录对比（追踪 Listing 优化效果随时间的变化）
+- [ ] 类目基准线：根据不同类目动态调整各维度阈值
 
-### 一句话描述
-> 独立设计并开发基于 Amazon A9 算法的 Listing 评分工具，集成 8 维量化评分模型与 OpenAI GPT-4 自动重写功能，可将人工优化效率提升 80%。
+---
 
-### 项目亮点（STAR 格式）
-- **Situation**：Amazon 卖家日常 Listing 优化依赖主观判断，缺乏量化标准，优化方向不明确
-- **Task**：设计一套可量化、可复现的 Listing 质量评估体系，并提供 AI 驱动的优化建议
-- **Action**：研究 Amazon A9 算法文档与业界最佳实践，提炼 8 个核心评分维度；使用 Python+Vue3 开发全栈工具；集成 OpenAI API 实现英文 Listing 的专业化重写
-- **Result**：工具支持 mock 模式无缝演示，评分维度覆盖标题 SEO、转化率、定价竞争力等核心运营指标
+## 简历描述
 
-### 技术关键词（供简历 ATS 优化）
-`Python` · `Flask` · `Vue 3` · `ECharts` · `OpenAI API` · `Amazon SEO` · `A9 Algorithm` · `RESTful API`
+```
+Amazon Listing 质量评分与优化引擎 | Python Flask + Vue 3 + OpenAI | 个人项目
+
+• 研究 Amazon A9 算法，提炼 8 个核心评分维度（含权重 / 最优区间 / 分段函数），量化 Listing 质量
+• 实现规则引擎将优化建议自动分为三级优先级，为运营提供可执行的改进路径
+• 集成 OpenAI GPT-4o 进行英文 Listing 重写，设计 Mock 回退机制保证无 Key 时完整演示
+• 前端三栏布局（输入 / 评分雷达图 / 建议），ECharts Dark 主题 8 轴雷达图直观呈现得分分布
+• 将人工 Listing 审查从 30 分钟压缩到 3 分钟，演示场景与真实运营工作高度吻合
+```
