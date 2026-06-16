@@ -11,19 +11,28 @@
 
 > Spring Boot 3 + Vue 3 + ECharts + MySQL | 还原 Amazon 运营日常数据监控场景
 
-**总览页** — 核心指标卡片 + 销售趋势 + 广告 ACoS/ROAS + 流量漏斗 + 库存状态
+**总览页** — 核心指标卡片 + 销售趋势 + 广告 ACoS/ROAS
 
 ![数据看板总览](docs/screenshots/data-dashboard-home.png)
 
-**广告 & 库存模块** — ACoS 趋势线、ROAS 变化、可销天数预警标红
+**广告 ACoS 趋势** — ACoS 趋势线含 35% 预警 markLine，visualMap 颜色分段（绿 / 橙 / 红）
 
 ![数据看板广告模块](docs/screenshots/data-dashboard-ads.png)
 
+**流量转化漏斗** — 页面浏览 → 访客会话 → 成功下单三层漏斗
+
+![数据看板流量漏斗](docs/screenshots/data-dashboard-funnel.png)
+
+**库存状态** — 断货红色行 / 预警橙色行 / 正常绿色标签
+
+![数据看板库存状态](docs/screenshots/data-dashboard-inventory.png)
+
 **功能亮点：**
 - 整合销售、广告、流量、库存 4 大模块，聚合 12 项核心运营指标
-- 广告表现模块追踪 ACoS（20%～38%）、CTR（1.5%～3.5%）等关键指标
-- 库存可销天数自动预警（橙色低库存 / 红色断货）
+- 广告表现模块追踪 ACoS（20%～38%）、CTR（1.5%～3.5%）等关键指标，含 35% 预警参考线
+- 库存可销天数自动分级预警（橙色低库存 / 红色断货）
 - 支持 7 / 30 / 90 天 / 全部时间维度切换
+- EasyExcel 双 Sheet 报表一键导出（销售数据 + 广告数据）
 - 覆盖 180 天模拟数据，含情人节、618 等大促节点
 
 ---
@@ -44,15 +53,15 @@
 
 ![选品工具关键词分析](docs/screenshots/product-research-keywords.png)
 
-**竞争度分析** — 各类目综合雷达图 + 机会象限（评价门槛 vs 市场规模）
+**竞争度分析** — 各类目综合雷达图 + 机会象限（低竞争 vs 高销量）
 
 ![选品工具竞争分析](docs/screenshots/product-research-competition.png)
 
 **功能亮点：**
-- 数据集覆盖 200 个产品、4 大类目、20 个品牌
-- 5 维加权评分：BSR（40%）、评价数（20%）、产品评分（20%）、月销售额（10%）、价格合理性（10%）
-- 4 个功能标签页、8 种 Plotly 交互图表
-- 侧边栏多维筛选，Top N 商品（5～50）动态可调
+- 数据集覆盖 200 个产品、4 大类目（无线耳机 / 手机支架 / 智能家居 / 运动水壶）
+- 5 维加权评分：BSR（40%）、评价数分段函数（20%）、产品评分（20%）、月销售额（10%）、价格合理性（10%）
+- 竞争度分析与机会象限散点图，识别「低竞争 + 高销量」蓝海品类
+- 4 个功能标签页、8 种 Plotly 交互图表；侧边栏多维筛选联动全部 Tab
 
 ---
 
@@ -60,23 +69,51 @@
 
 > Spring Boot 3 + MyBatis-Plus + Vue 3 + ECharts + MySQL | 自动化竞品预警
 
+**监控看板** — 4 个核心指标卡 + 最新预警列表，一屏掌握所有异动
+
+![竞品监控看板](docs/screenshots/competitor-monitor-dashboard.png)
+
+**商品列表** — 分页展示 50+ 监控 ASIN，支持品牌 / 标题 / ASIN 实时搜索
+
+![竞品商品列表](docs/screenshots/competitor-monitor-products.png)
+
+**价格 & BSR 走势** — 双折线图，支持 7 / 30 / 90 天切换
+
+![竞品商品详情](docs/screenshots/competitor-monitor-detail.png)
+
+**预警配置** — 全局阈值 + ASIN 级独立配置（ASIN 级优先），预警记录按已读 / 未读筛选
+
+![竞品预警配置](docs/screenshots/competitor-monitor-alerts.png)
+
 **功能亮点：**
-- 覆盖 50 个 ASIN、5 大品类，90 天历史数据 4,500+ 条
-- 每 5 分钟定时扫描，支持价格下跌 / 上涨 / BSR 异动 4 种预警类型，自动邮件通知
-- Caffeine 缓存热点配置（TTL 5 分钟），Dashboard 接口响应时间降低约 60%
-- 支持 7 / 30 / 90 天趋势折线图，移动端响应式
-- 一键导出 BOM UTF-8 CSV，直接兼容 Excel
+- 覆盖 50 个 ASIN、5 大品类，90 天历史时序数据约 13,500 条
+- 支持价格下跌 / 上涨 / BSR 改善 / BSR 下滑 4 种预警类型
+- 两级预警配置：ASIN 级独立阈值优先，无配置时回退全局默认值
+- 7 / 30 / 90 天价格与 BSR 走势折线图，markPoint 标注最高 / 最低点
 
 ---
 
 ### Amazon Listing 优化引擎（listing-optimizer）
 
-> Python Flask + Vue 3 | Listing 质量评分 + AI 改写建议
+> Python Flask + Vue 3 + ECharts | Listing 质量评分 + AI 改写建议
+
+**评分结果** — 8 维 Dark 主题雷达图 + 各维度进度条得分卡
+
+![Listing 评分界面](docs/screenshots/listing-optimizer-scoring.png)
+
+**优化建议** — 规则引擎按优先级输出⚠紧急修复 / ↑重点提升 / ✓速效优化三级建议
+
+![Listing 优化建议](docs/screenshots/listing-optimizer-suggestions.png)
+
+**AI 重写对比** — 标题 / Bullet / 描述分 Tab 展示重写结果，无 API Key 时 Mock 模式完整演示
+
+![Listing AI 重写](docs/screenshots/listing-optimizer-rewrite.png)
 
 **功能亮点：**
 - 8 维加权评分模型（标题长度、关键词密度、Bullet 数量/长度、描述完整度、图片数量、价格竞争力、评论数），输出 0～100 分及 A/B/C/D 四级评级
-- 按高 / 中 / 低 3 个优先级返回分项优化建议
-- 集成 AI 接口，根据评分弱项生成英文 Listing 重写方案，支持 mock 模式无 Key 演示
+- 规则引擎按得分自动分三级优先级返回中文优化建议
+- 集成 OpenAI GPT-4o 进行英文 Listing 重写；无 API Key 时自动回退 Mock 模式，面试演示效果一致
+- 「加载演示数据」一键填充低分 Listing，30 秒内完成完整演示流程
 
 ---
 
@@ -109,19 +146,18 @@ cross-border-ecom/
 ```bash
 cd 01-projects/product-research
 pip install -r requirements.txt
+python generate_data.py   # 首次运行，生成 CSV
 streamlit run app.py
 # 访问 http://localhost:8501
 ```
 
 ### 店铺数据看板（data-dashboard）
 
-**前提：** MySQL 8.0+，创建数据库并导入测试数据
-
 ```bash
 # 1. 初始化数据库
 mysql -u root -p < 01-projects/data-dashboard/sql/init.sql
 
-# 2. 生成 180 天模拟数据（修改 data-scripts/generate_store_data.py 中的密码）
+# 2. 生成 180 天模拟数据
 cd 01-projects/data-dashboard/data-scripts
 pip install mysql-connector-python
 python generate_store_data.py
@@ -139,14 +175,31 @@ npm install && npm run dev
 ### 竞品监控系统（competitor-monitor）
 
 ```bash
-# 后端（端口 8080）
+# 1. 初始化数据库 & 生成模拟数据
+mysql -u root -p < 01-projects/competitor-monitor/sql/init.sql
+cd 01-projects/competitor-monitor/data-scripts
+python mock_data_generator.py
+
+# 2. 后端（端口 8080）
 cd 01-projects/competitor-monitor/backend
 DB_PASSWORD=你的数据库密码 mvn spring-boot:run
 
-# 前端
+# 3. 前端
 cd 01-projects/competitor-monitor/frontend
 npm install && npm run dev
 # 访问 http://localhost:5173
+```
+
+### Listing 优化引擎（listing-optimizer）
+
+```bash
+cd 01-projects/listing-optimizer/backend
+pip install -r requirements.txt
+python app.py   # 后端端口 5000
+
+cd 01-projects/listing-optimizer/frontend
+npm install && npm run dev
+# 访问 http://localhost:3000
 ```
 
 ---
@@ -183,4 +236,4 @@ npm install && npm run dev
 
 ---
 
-*最后更新：2026-06-14*
+*最后更新：2026-06-16*
