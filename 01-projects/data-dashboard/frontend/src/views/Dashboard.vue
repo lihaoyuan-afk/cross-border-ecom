@@ -361,7 +361,7 @@ function renderSalesChart(data) {
       }
     },
     legend: { ...darkLegend, data: ['销售额', '订单量'], bottom: 4 },
-    grid: { top: 20, bottom: 52, left: 80, right: 50, containLabel: true },
+    grid: { top: 20, bottom: 52, left: 70, right: 50, containLabel: true },
     xAxis: {
       ...darkAxis,
       type: 'category',
@@ -373,6 +373,9 @@ function renderSalesChart(data) {
         ...darkAxis,
         type: 'value',
         name: '销售额（元）',
+        nameLocation: 'middle',
+        nameRotate: 90,
+        nameGap: 52,
         axisLabel: { ...darkAxis.axisLabel, formatter: v => (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }
       },
       {
